@@ -19,6 +19,11 @@ class _LoginScreenState extends State<LoginScreen> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
+  resetTextFields() {
+    emailController.clear();
+    passwordController.clear();
+  }
+
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   formValidation() {
@@ -52,11 +57,7 @@ class _LoginScreenState extends State<LoginScreen> {
         .then((auth) {
       currentUser = auth.user!;
       if (currentUser != null) {
-        readDataAndSetDataLocally(currentUser!).then((value) {
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (e) {
-            return const HomeScreen();
-          }));
-        });
+        readDataAndSetDataLocally(currentUser!);
       }
     }).catchError((error) {
       Navigator.pop(context);
@@ -77,13 +78,31 @@ class _LoginScreenState extends State<LoginScreen> {
         .doc(currentUser.uid)
         .get()
         .then((snapshot) async {
-      await sharedPreferences!.setString("uid", currentUser.uid);
-      await sharedPreferences!
-          .setString("email", snapshot.data()!["sellerEmail"]);
-      await sharedPreferences!
-          .setString("name", snapshot.data()!["sellerName"]);
-      await sharedPreferences!
-          .setString("photoUrl", snapshot.data()!["sellerAvatarUrl"]);
+      if (snapshot.exists) {
+        await sharedPreferences!.setString("uid", currentUser.uid);
+        await sharedPreferences!
+            .setString("email", snapshot.data()!["sellerEmail"]);
+        await sharedPreferences!
+            .setString("name", snapshot.data()!["sellerName"]);
+        await sharedPreferences!
+            .setString("photoUrl", snapshot.data()!["sellerAvatarUrl"]);
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (e) {
+          return const HomeScreen();
+        }));
+      } else {
+        firebaseAuth.signOut();
+        Navigator.pop(context);
+        resetTextFields();
+        showDialog(
+          context: context,
+          builder: (c) {
+            return const ErrorDialog(
+              message:
+                  "Seller records not found. Please check your credentials.",
+            );
+          },
+        );
+      }
     });
   }
 
