@@ -36,10 +36,10 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       body: Center(
-        child: TextButton(
+        child: ElevatedButton(
           child: const Text(
             "Logout",
-            style: TextStyle(color: Colors.cyan),
+            style: TextStyle(color: Colors.white),
           ),
           onPressed: () {
             firebaseAuth.signOut().then((value) {

@@ -309,7 +309,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('Please fill all fields and accept terms.'),
+                    content: Text('Please fill all fields.'),
                   ),
                 );
               }
