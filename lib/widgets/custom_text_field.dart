@@ -1,19 +1,27 @@
 import 'package:flutter/material.dart';
 
-class CustomTextField extends StatelessWidget {
-  final TextEditingController? controller;
-  final IconData? data;
-  final String? hintText;
-  final bool? obscureText;
-  final bool? enabled;
+class CustomTextField extends StatefulWidget {
+  final bool enabled;
+  final TextEditingController controller;
+  final bool obscureText;
+  final IconData data;
+  final String hintText;
+
   const CustomTextField({
     super.key,
-    this.controller,
-    this.data,
-    this.hintText,
-    this.obscureText = true,
-    this.enabled = true,
+    required this.enabled,
+    required this.controller,
+    required this.obscureText,
+    required this.data,
+    required this.hintText,
   });
+
+  @override
+  _CustomTextFieldState createState() => _CustomTextFieldState();
+}
+
+class _CustomTextFieldState extends State<CustomTextField> {
+  String? errorText;
 
   @override
   Widget build(BuildContext context) {
@@ -27,19 +35,36 @@ class CustomTextField extends StatelessWidget {
       padding: const EdgeInsets.all(8.0),
       margin: const EdgeInsets.all(10),
       child: TextFormField(
-        enabled: enabled,
-        controller: controller,
-        obscureText: obscureText!,
+        enabled: widget.enabled,
+        controller: widget.controller,
+        obscureText: widget.obscureText,
         cursorColor: Theme.of(context).primaryColor,
         decoration: InputDecoration(
           border: InputBorder.none,
           prefixIcon: Icon(
-            data,
-            color: Colors.cyan,
+            widget.data,
+            color: errorText != null ? Colors.red : Colors.cyan,
           ),
-          hintText: hintText,
+          hintText: errorText ?? widget.hintText,
+          hintStyle: TextStyle(
+            color: errorText != null ? Colors.red : Colors.grey,
+          ),
           focusColor: Theme.of(context).primaryColor,
+          errorText: null, // Prevent the default error text behavior
         ),
+        validator: (value) {
+          if (value!.isEmpty) {
+            setState(() {
+              errorText = 'Please enter ${widget.hintText}.';
+            });
+            return null;
+          } else {
+            setState(() {
+              errorText = null;
+            });
+          }
+          return null;
+        },
       ),
     );
   }
